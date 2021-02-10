@@ -4,15 +4,16 @@ def leerArchivo (ruta_archivo):
     texto = []
 
     while (len(linea)!=0):
-          open = 0
-          close = 0
-          texto = ""
-          while (open != close) and (len(linea)!=0):
-              open += linea.count("(")
-              close += linea.count(")")
-              linea=archivo.readline()
-          texto.append(linea.replace('\n',''))
-          linea=archivo.readline()
+        open1 = 0
+        close = 0
+        #texto = ""
+        while (open1 != close) and (len(linea)!=0):
+            open1 += linea.count("(")
+            close += linea.count(")")
+            linea=archivo.readline()
+        if (open1 == close):
+            texto.append(linea.replace('\n',''))
+            linea=archivo.readline()
     
     archivo.close         
     print(texto)
@@ -54,12 +55,12 @@ def analizarArchivo(ruta_archivo):
             pass
         elif instruccion.contains("NOP"):
             pass
-        elif texto[linea][0:-1] in :
-            pass
+        #elif texto[linea][0:-1] in :
+            #pass
 
 
 
 
 
 
-leerArchivo("PruebaBien1.txt")
+leerArchivo("D:\datos\Jessica\jess\sistemas\lym\Proyecto1\PruebaBien1.txt")
