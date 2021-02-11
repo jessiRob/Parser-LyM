@@ -1,7 +1,7 @@
 ( rotate back )
-(if (not (blocked?) ) (walk 1) (nop)))
+(if (not (blocked?) ) (walk 1) (nop))
 (block
-(if (not (blocked?) ) (walk 1) (nop)))
+(if (not (blocked?) ) (walk 1) (nop))
 (rotate left)
 )
 (define one 1)
