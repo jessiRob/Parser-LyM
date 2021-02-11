@@ -59,8 +59,49 @@ def analizarArchivo(ruta_archivo):
             #pass
 
 
+"""
+def leerArchivo (ruta_archivo):
+    archivo= open(ruta_archivo,"r")
+    linea=archivo.readline()
+    texto = []
+    textoStr=""
 
+    while (len(linea)!=0):
+        textoStr += linea.replace("\n","")
+        linea=archivo.readline()
+    #print(textoStr)
+    #print(len(textoStr))
+    s=0
+    open1 = 0
+    close = 0
+    openPos = 0
+    while s<(len(textoStr)):
+        if open1 == close:
+            if textoStr[s] == "(":
+                open1 +=1
+                openPos = s
+                #print("x",open1, close)
+            elif (textoStr[s] != " ") and (open1 == 0):
+                #print("F")
+                return texto
+            s +=1
+        while (open1 != close) and (s<(len(textoStr))):
+            if textoStr[s] == "(":
+                open1 +=1
+                
+            if textoStr[s] == ")":
+                close +=1
+                #print(open1,close)
+                if (open1 == close):
+                    open1 = 0
+                    close = 0
+                    texto.append(textoStr[openPos:s+1])
+                    openPos = 0
+                #print(texto,textoStr[s] ,s, openPos, open1, close)    
+            s +=1
 
+    archivo.close         
+    return texto
+"""
 
-
-leerArchivo("D:\datos\Jessica\jess\sistemas\lym\Proyecto1\PruebaBien1.txt")
+print(leerArchivo("D:\datos\Jessica\jess\sistemas\lym\Proyecto1\PruebaBien1.txt"))
