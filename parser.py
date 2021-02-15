@@ -49,48 +49,74 @@ def analizarArchivo(ruta_archivo):
     texto = leerArchivo (ruta_archivo)
     linea  = 0
     correcto = True
-    lista_p = [1]
-    functions = []
+    variables = {}
+    functions = {}
 
     if texto[linea][0] != "(":
         correcto = False
 
-    for comando in texto:
+    while correcto and (linea<len(texto)):
+        comando = texto[linea]
         comando=comando.split() 
         parenthesis_o=comando.count("(")
         parenthesis_c=comando.count(")")
         
         print(comando,parenthesis_o, parenthesis_c)
             
-"""
-    
-        if instruccion.contains("define"):
+        if comando[1] == "define":
+            correcto = define(comando, variables, functions)
+        elif comando[1] == "block":
             pass
-        elif instruccion.contains("block"):
+        elif comando[1] == "if":
             pass
-        elif instruccion.contains("if"):
+        elif comando[1] == "walk":
+            correcto = walk(comando, variables)
+        elif comando[1] == "rotate":
             pass
-        elif instruccion.contains("walk"):
+        elif comando[1] == "look":
             pass
-        elif instruccion.contains("rotate"):
+        elif comando[1] == "drop":
             pass
-        elif instruccion.contains("look"):
+        elif comando[1] == "free":
             pass
-        elif instruccion.contains("drop"):
+        elif comando[1] == "pick":
             pass
-        elif instruccion.contains("free"):
+        elif comando[1] == "grab":
             pass
-        elif instruccion.contains("pick"):
+        elif comando[1] == "walkTo":
             pass
-        elif instruccion.contains("grab"):
+        elif comando[1].lower() == "nop":
             pass
-        elif instruccion.contains("walkTo"):
+        elif comando[1] in functions.keys():
             pass
-        elif instruccion.contains("NOP"):
-            pass
+        
         #elif texto[linea][0:-1] in :
             #pass
-"""
+        linea += 1
 
+    return correcto
+
+def walk(comando, variables):
+    correcto = False
+    if len(comando) == 4:
+        if (comando[2].isdigit()):
+            correcto = True
+        elif (comando[2] in variables.keys()):
+            if (variables[comando[2]].isdigit()) :
+                correcto = True
+    return correcto
+
+def define(comando, variables, functions):
+    comandos = ["walk","rotate","look","drop","free","pick","grab","walkTo","nop","if","define","block",]
+    correcto = False
+    if len(comando) == 5:
+        if (comando[2].isalnum()):
+            if (comando[2] not in comandos):
+                if (comando[3].isalnum()):
+                    variables[comando[2]] = comando[3]
+    elif len(comando) == 5:
+        pass
+
+    return correcto
 
 print(leerArchivo("PruebaBien1.txt"))
