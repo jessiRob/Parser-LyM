@@ -1,5 +1,3 @@
-
-
 def leerArchivo (ruta_archivo):
     archivo= open(ruta_archivo,"r")
     linea=archivo.readline()
@@ -64,24 +62,17 @@ def analizarArchivo(ruta_archivo):
         print(comando,parenthesis_o, parenthesis_c)
             
         if comando[1] == "define":
-            correcto = define(comando, variables, functions)
+            #correcto = define(comando, variables, functions)
+            pass
         elif comando[1] == "block":
             pass
         elif comando[1] == "if":
             pass
-        elif comando[1] == "walk":
-            correcto = walk(comando, variables)
+        elif (comando[1] == "walk") or (comando[1] == "drop") or (comando[1] == "free") or (comando[1] == "pick") or (comando[1] == "grab"):
+            correcto = walkDropFreePickGrab(comando, variables)
         elif comando[1] == "rotate":
-            pass
+            correcto = rotate(comando, variables)
         elif comando[1] == "look":
-            pass
-        elif comando[1] == "drop":
-            pass
-        elif comando[1] == "free":
-            pass
-        elif comando[1] == "pick":
-            pass
-        elif comando[1] == "grab":
             pass
         elif comando[1] == "walkTo":
             pass
@@ -96,7 +87,11 @@ def analizarArchivo(ruta_archivo):
 
     return correcto
 
-def walk(comando, variables):
+def walkDropFreePickGrab(comando, variables):
+    """
+    Parser para las funciones de walk, Drop, Free, 
+    Pick y Grab
+    """
     correcto = False
     if len(comando) == 4:
         if (comando[2].isdigit()):
@@ -106,17 +101,41 @@ def walk(comando, variables):
                 correcto = True
     return correcto
 
+def rotate(comando, variables):
+    valores = ["left","right","back"]
+    correcto = False
+    if len(comando) == 4:
+        if (comando[2] in valores):
+            correcto = True
+        elif (comando[2] in variables.keys()):
+            if (variables[comando[2]] in valores) :
+                correcto = True
+    return correcto
+
 def define(comando, variables, functions):
     comandos = ["walk","rotate","look","drop","free","pick","grab","walkTo","nop","if","define","block",]
     correcto = False
-    if len(comando) == 5:
-        if (comando[2].isalnum()):
-            if (comando[2] not in comandos):
+    if (comando[2].isalnum()):
+        if (comando[2] not in comandos):
+            if len(comando) == 5:
                 if (comando[3].isalnum()):
                     variables[comando[2]] = comando[3]
-    elif len(comando) == 5:
-        pass
+            elif len(comando) > 6:
+                if (comando[3] == "("):
+                    #Parametros
+                    finP = comando.index(")",4)
+                    for i in range(4,finP+1):
+                        if (not comando[i].isalnum) or (not comando[i].isdigit()):
+                            return correcto
+                    #Comandos
+                    j = finP
+                    while (j<len(comandos)) and (correcto == False):
+                        open = 0
+                        close = 0
+                        y = j
+                        #Sin termianr
 
     return correcto
 
-print(leerArchivo("PruebaBien1.txt"))
+print(analizarArchivo("D:\datos\Jessica\jess\sistemas\lym\Proyecto1\PruebaBien1.txt"))
+
