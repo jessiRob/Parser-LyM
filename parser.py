@@ -62,8 +62,8 @@ def analizarArchivo(ruta_archivo):
         print(comando,parenthesis_o, parenthesis_c)
             
         if comando[1] == "define":
-            #correcto = define(comando, variables, functions)
-            pass
+            correcto = define(comando, variables, functions)
+            print(correcto, "define")
         elif comando[1] == "block":
             pass
         elif comando[1] == "if":
@@ -71,21 +71,20 @@ def analizarArchivo(ruta_archivo):
         elif (comando[1] == "walk") or (comando[1] == "drop") or (comando[1] == "free") or (comando[1] == "pick") or (comando[1] == "grab"):
             correcto = walkDropFreePickGrab(comando, variables)
         elif comando[1] == "rotate":
-            correcto = rotate(comando, variables)
+            correcto = rotateLook(comando,variables,["left","right","back"])
         elif comando[1] == "look":
-            pass
+            correcto = rotateLook(comando,variables,["N","E","W","S"])
         elif comando[1] == "walkTo":
-            pass
+            correcto = walkTo(comando, variables)
         elif comando[1].lower() == "nop":
-            pass
+            correcto = nop(comando)
         elif comando[1] in functions.keys():
-            pass
-        
-        #elif texto[linea][0:-1] in :
-            #pass
+            funciones(comando, variables, functions)
+        else:
+            correcto = False
         linea += 1
 
-    return correcto
+    return (correcto,variables,functions) 
 
 def walkDropFreePickGrab(comando, variables):
     """
@@ -99,17 +98,47 @@ def walkDropFreePickGrab(comando, variables):
         elif (comando[2] in variables.keys()):
             if (variables[comando[2]].isdigit()) :
                 correcto = True
+            if variables[comando[2]] == True:
+                correcto = True
     return correcto
 
-def rotate(comando, variables):
-    valores = ["left","right","back"]
+def rotateLook(comando, variables, valores):
+    """
+    Parser para las funciones de rotate y look. 
+    Valores es una lista con los parametros para cada
+    comando
+    """
     correcto = False
     if len(comando) == 4:
         if (comando[2] in valores):
             correcto = True
-        elif (comando[2] in variables.keys()):
-            if (variables[comando[2]] in valores) :
+        if (comando[2] in variables):
+            if variables[comando[2]] == True:
                 correcto = True
+    return correcto
+
+def walkTo(comando, variables):
+    """
+    Parser para las funciones de walkTo
+    """
+    valores = ["N","E","W","S"]
+    correcto = False
+    if len(comando) == 5:
+        if (comando[2].isdigit()):
+            if comando[3] in valores:
+                correcto = True
+        elif (comando[2] in variables.keys()):
+            if (variables[comando[2]].isdigit()):
+                if comando[3] in valores:
+                    correcto = True
+            if variables[comando[2]] == True:
+                correcto = True
+    return correcto
+
+def nop(comando):
+    correcto = False
+    if len(comando) == 3:
+        correcto = True
     return correcto
 
 def define(comando, variables, functions):
@@ -119,22 +148,89 @@ def define(comando, variables, functions):
         if (comando[2] not in comandos):
             if len(comando) == 5:
                 if (comando[3].isalnum()):
-                    variables[comando[2]] = comando[3]
+                    if comando[3] in variables.keys():
+                        variables[comando[2]] = variables[comando[3]]
+                        correcto = True
+                    else:
+                        variables[comando[2]] = comando[3]
+                        correcto = True
             elif len(comando) > 6:
                 if (comando[3] == "("):
                     #Parametros
+                    variables1 = variables.copy()
                     finP = comando.index(")",4)
                     for i in range(4,finP+1):
-                        if (not comando[i].isalnum) or (not comando[i].isdigit()):
+                        if (not comando[i].isalnum) or (comando[i] in comandos):
+                            print("F")
                             return correcto
-                    #Comandos
-                    j = finP
-                    while (j<len(comandos)) and (correcto == False):
-                        open = 0
-                        close = 0
-                        y = j
-                        #Sin termianr
+                        variables1[comando[i]]=True
+                        print
+                    #DividirComandos
+                    comandosInDef = []
+                    comandoact = []
+                    open = 1
+                    close = 0
+                    if comando[finP+1] != "(":
+                        return correcto
+                    comandoact.append(comando[finP+1])
+                    finP += 2
+                    while (finP<len(comando)):
+                        if comando[finP] == "(":
+                            open += 1
+                            comandoact.append(comando[finP])
+                        elif comando[finP] == ")":
+                            close += 1
+                            comandoact.append(comando[finP])
+                            if close == open:
+                                comandosInDef.append(comandoact)
+                                open = 1
+                                close = 0
+                        else:
+                            comandoact.append(comando[finP])
+                        finP +=1
+                        #print("dividir comandos",finP, len(comando))
+                    #Analizar comandos
+                    numCommand = 0
+                    functions1 = functions.copy()
+                    functions1[comando[2]] = len(variables1)-len(variables)-1
+                    print("len",functions1[comando[2]])
+                    correcto = True
+                    while (numCommand<len(comandosInDef)) and (correcto == True):
+                        comando1 = comandosInDef[numCommand]
+                        print("si se puede")
+                        if comando1[1] == "block":
+                            pass
+                        elif comando1[1] == "if":
+                            pass
+                        elif (comando1[1] == "walk") or (comando[1] == "drop") or (comando[1] == "free") or (comando[1] == "pick") or (comando[1] == "grab"):
+                            correcto = walkDropFreePickGrab(comando1, variables1)
+                            print(correcto)
+                        elif comando1[1] == "rotate":
+                            correcto = rotateLook(comando1,variables1,["left","right","back"])
+                        elif comando1[1] == "look":
+                            correcto = rotateLook(comando1,variables1,["N","E","W","S"])
+                        elif comando1[1] == "walkTo":
+                            correcto = walkTo(comando1, variables1)
+                        elif comando1[1].lower() == "nop":
+                            correcto = nop(comando)
+                        elif comando1[1] in functions.keys():
+                            funciones(comando1, variables1, functions1)
+                        else:
+                            correcto =  False
+                        numCommand += 1
+                    if correcto == True:
+                        functions[comando[2]] = len(variables1)-len(variables)-1
+    return correcto
 
+def funciones(comando, variables, funciones):
+    correcto = False
+    if (funciones[comando[1]] == 0) and (len(comando) == 3):
+        correcto = True
+    elif (len(comando) == (funciones[comando[1]]+3)):
+        for i in range(2,len(comando)-1):
+            if (not comando[i].isdigit) and (comando[i] not in variables.keys()):
+                return correcto
+        correcto = True
     return correcto
 
 print(analizarArchivo("D:\datos\Jessica\jess\sistemas\lym\Proyecto1\PruebaBien1.txt"))
