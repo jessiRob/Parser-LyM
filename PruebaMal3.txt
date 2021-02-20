@@ -1,0 +1,5 @@
+(define foo (x y) (block (drop x) (free y)))
+
+(define goo (x y) (block (look N) (foo x y)))
+
+(goo foo 1)

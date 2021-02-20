@@ -1,0 +1,5 @@
+(define foo (x y) (block (drop x) (free y)))
+
+(define one 1)
+
+(foo one x)

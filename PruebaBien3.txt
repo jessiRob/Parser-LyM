@@ -1,0 +1,17 @@
+(define moveToEnd () 
+    (if (not (blocked?)) 
+        (block ( walk 1) (moveToEnd)) 
+   ( nop)))
+
+
+(define goNorth () (block (look N) (moveToEnd)))
+
+(define foo (x y) (block (drop x) (free y)))
+
+(goNorth)
+
+(foo 4 3)
+
+(define one 1)
+
+(foo one one)
