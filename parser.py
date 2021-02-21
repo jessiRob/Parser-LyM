@@ -5,13 +5,11 @@ def leerArchivo (ruta_archivo):
     textoStr=""
 
     while (len(linea)!=0):
-        textoStr=textoStr.replace("    ","")#ADDED
-        textoStr=textoStr.replace("("," ( ")#ADDED
-        textoStr=textoStr.replace(")"," ) ")#ADDED
+        textoStr=textoStr.replace("    ","")
+        textoStr=textoStr.replace("("," ( ")
+        textoStr=textoStr.replace(")"," ) ")
         textoStr += linea.replace("\n","")
         linea=archivo.readline()
-    #print(textoStr)
-    #print(len(textoStr))
     s=0
     open1 = 0
     close = 0
@@ -21,9 +19,7 @@ def leerArchivo (ruta_archivo):
             if textoStr[s] == "(":
                 open1 +=1
                 openPos = s
-                #print("x",open1, close)
             elif (textoStr[s] != " ") and (open1 == 0):
-                #print("F")
                 return texto
             s +=1
         while (open1 != close) and (s<(len(textoStr))):
@@ -31,15 +27,12 @@ def leerArchivo (ruta_archivo):
                 open1 +=1               
             if textoStr[s] == ")":
                 close +=1
-                #print(open1,close)
                 if (open1 == close):
                     open1 = 0
                     close = 0
                     texto.append(textoStr[openPos:s+1])
-                    openPos = 0
-                #print(texto,textoStr[s] ,s, openPos, open1, close)    
+                    openPos = 0   
             s +=1
-
     archivo.close         
     return texto
 
@@ -56,14 +49,12 @@ def analizarArchivo(ruta_archivo):
     while correcto and (linea<len(texto)):
         comando = texto[linea]
         comando=comando.split() 
-        parenthesis_o=comando.count("(")
-        parenthesis_c=comando.count(")")
+        while (comando[1]=="("):
+            del comando[1]
+            del comando[-1]
         
-        print(comando,parenthesis_o, parenthesis_c)
-            
         if comando[1] == "define":
             correcto = define(comando, variables, functions)
-            print(correcto, "define")
         elif comando[1] == "block":
             pass
         elif comando[1] == "if":
@@ -83,8 +74,7 @@ def analizarArchivo(ruta_archivo):
         else:
             correcto = False
         linea += 1
-
-    return (correcto,variables,functions) 
+    return correcto
 
 def walkDropFreePickGrab(comando, variables):
     """
@@ -161,10 +151,8 @@ def define(comando, variables, functions):
                     finP = comando.index(")",4)
                     for i in range(4,finP+1):
                         if (not comando[i].isalnum) or (comando[i] in comandos):
-                            print("F")
                             return correcto
                         variables1[comando[i]]=True
-                        print
                     #DividirComandos
                     comandosInDef = []
                     comandoact = []
@@ -193,18 +181,15 @@ def define(comando, variables, functions):
                     numCommand = 0
                     functions1 = functions.copy()
                     functions1[comando[2]] = len(variables1)-len(variables)-1
-                    print("len",functions1[comando[2]])
                     correcto = True
                     while (numCommand<len(comandosInDef)) and (correcto == True):
                         comando1 = comandosInDef[numCommand]
-                        print("si se puede")
                         if comando1[1] == "block":
                             pass
                         elif comando1[1] == "if":
                             pass
                         elif (comando1[1] == "walk") or (comando[1] == "drop") or (comando[1] == "free") or (comando[1] == "pick") or (comando[1] == "grab"):
                             correcto = walkDropFreePickGrab(comando1, variables1)
-                            print(correcto)
                         elif comando1[1] == "rotate":
                             correcto = rotateLook(comando1,variables1,["left","right","back"])
                         elif comando1[1] == "look":
@@ -233,5 +218,21 @@ def funciones(comando, variables, funciones):
         correcto = True
     return correcto
 
-print(analizarArchivo("D:\datos\Jessica\jess\sistemas\lym\Proyecto1\PruebaBien1.txt"))
+#FUNCION PRINCIPAL_________________________________________________________________________________
+def main(filename):
+    """
+    Esta funcion carga archivos .txt y revisa
+    que su contenido sea 
+    """
+    #try:
+    if filename.endswith('.txt'):
+        print('Cargando archivo: ' + filename)
+        correcto = analizarArchivo(filename)
+    if correcto:
+        print("YES")
+    else:
+        print("NO")
+    #except:
+        #print("Hubo un error al cargar el archivo, revise que el archivo cumpla con las condiciones")
 
+main("D:\datos\Jessica\jess\sistemas\lym\Proyecto1\PruebaBien1.txt")#Direccion archivo aqui
