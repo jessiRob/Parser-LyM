@@ -145,7 +145,7 @@ def define(comando, variables, functions):
     comandos = ["walk","rotate","look","drop","free","pick","grab","walkTo","nop","if","define","block",]
     correcto = False
     if (comando[2].isalnum()):
-        if (comando[2] not in comandos):
+        if (comando[2] not in comandos) and (comando[2] not in variables.keys()) and (comando[2] not in functions.keys()):
             if len(comando) == 5:
                 if (comando[3].isalnum()):
                     if comando[3] in variables.keys():
