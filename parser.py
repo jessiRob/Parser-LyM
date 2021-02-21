@@ -5,13 +5,11 @@ def leerArchivo (ruta_archivo):
     textoStr=""
 
     while (len(linea)!=0):
-        textoStr=textoStr.replace("    ","")#ADDED
-        textoStr=textoStr.replace("("," ( ")#ADDED
-        textoStr=textoStr.replace(")"," ) ")#ADDED
+        textoStr=textoStr.replace("    ","")
+        textoStr=textoStr.replace("("," ( ")
+        textoStr=textoStr.replace(")"," ) ")
         textoStr += linea.replace("\n","")
         linea=archivo.readline()
-    #print(textoStr)
-    #print(len(textoStr))
     s=0
     open1 = 0
     close = 0
@@ -21,9 +19,7 @@ def leerArchivo (ruta_archivo):
             if textoStr[s] == "(":
                 open1 +=1
                 openPos = s
-                #print("x",open1, close)
             elif (textoStr[s] != " ") and (open1 == 0):
-                #print("F")
                 return texto
             s +=1
         while (open1 != close) and (s<(len(textoStr))):
@@ -31,15 +27,12 @@ def leerArchivo (ruta_archivo):
                 open1 +=1               
             if textoStr[s] == ")":
                 close +=1
-                #print(open1,close)
                 if (open1 == close):
                     open1 = 0
                     close = 0
                     texto.append(textoStr[openPos:s+1])
-                    openPos = 0
-                #print(texto,textoStr[s] ,s, openPos, open1, close)    
+                    openPos = 0   
             s +=1
-
     archivo.close         
     return texto
 
@@ -56,18 +49,16 @@ def analizarArchivo(ruta_archivo):
     while correcto and (linea<len(texto)):
         comando = texto[linea]
         comando=comando.split() 
-        parenthesis_o=comando.count("(")
-        parenthesis_c=comando.count(")")
+        while (comando[1]=="("):
+            del comando[1]
+            del comando[-1]
         
-        print(comando,parenthesis_o, parenthesis_c)
-            
         if comando[1] == "define":
             correcto = define(comando, variables, functions)
-            print(correcto, "define")
         elif comando[1] == "block":
-            pass
+            correcto = block(comando, variables,functions)
         elif comando[1] == "if":
-            pass
+            correcto = If(comando,variables,functions)
         elif (comando[1] == "walk") or (comando[1] == "drop") or (comando[1] == "free") or (comando[1] == "pick") or (comando[1] == "grab"):
             correcto = walkDropFreePickGrab(comando, variables)
         elif comando[1] == "rotate":
@@ -83,13 +74,11 @@ def analizarArchivo(ruta_archivo):
         else:
             correcto = False
         linea += 1
-
-    return (correcto,variables,functions) 
+    return correcto
 
 def comando_sin_p(comando, varukas,comandos2_0,palabra):
     for palabra in comando:
         comando_here=comando.index(palabra)
-        
         if palabra in comandos2_0 :
             if comando[comando_here+1]=="(" and comando[comando_here+2] in varukas and comando[comando_here+3]==")" :
                 comando.pop(comando_here+1)
@@ -105,6 +94,8 @@ def comando_sin_p(comando, varukas,comandos2_0,palabra):
 #Comandosss
 
 def If(comando,variables1,funcion):
+    dict1 = {"walk":0,"rotate":0,"look":0,"drop":0,"free":0,"pick":0,"grab":0,"walkTo":0,"nop":0,"if":0,"define":0,"block":0}
+    dict1.update(funcion)
     correcto=True
     conds=["not","can","blocked?","facing?", ]
     if comando[0]!="(":
@@ -115,26 +106,26 @@ def If(comando,variables1,funcion):
         elif comando[3] in conds and comando[4]!= "(":
             correcto=False
         elif comando[3] in conds and comando[4]== "(" or comando[4]== ")":
-            if (comando[5]=="blocked?" or comando[5]== "facing?" or comando[5] in funcion) and comando[6]!= ")":
+            if (comando[5]=="blocked?" or comando[5]== "facing?" or comando[5] in dict1.keys()) and comando[6]!= ")":
                 correcto=False
-            elif (comando[5]=="blocked?" or comando[5]== "facing?" or comando[5] in funcion) and comando[6]== ")" and comando[7]!= ")":
+            elif (comando[5]=="blocked?" or comando[5]== "facing?" or comando[5] in dict1.keys()) and comando[6]== ")" and comando[7]!= ")":
                 correcto=False
-            elif (comando[5]=="blocked?" or comando[5]== "facing?" or comando[5] in funcion) and comando[6]== ")" and comando[7]== ")" and comando[8]!= "(":
+            elif (comando[5]=="blocked?" or comando[5]== "facing?" or comando[5] in dict1.keys()) and comando[6]== ")" and comando[7]== ")" and comando[8]!= "(":
                 correcto=False
-            elif (comando[5]=="blocked?" or comando[5]== "facing?" or comando[5] in funcion) and comando[6]== ")" and comando[7]== ")" and comando[8]== "(" and comando[9] not in funcion:
+            elif (comando[5]=="blocked?" or comando[5]== "facing?" or comando[5] in dict1.keys()) and comando[6]== ")" and comando[7]== ")" and comando[8]== "(" and comando[9] not in dict1.keys():
                 correcto=False
-            elif (comando[5]=="blocked?" or comando[5]== "facing?" or comando[5] in funcion) and comando[6]== ")" and comando[7]== ")" and comando[8]== "(" and comando[9] in funcion:
-                if comando[10]in funcion or comando[10]==")":    
+            elif (comando[5]=="blocked?" or comando[5]== "facing?" or comando[5] in dict1.keys()) and comando[6]== ")" and comando[7]== ")" and comando[8]== "(" and comando[9] in dict1.keys():
+                if comando[10]in dict1.keys() or comando[10]==")":    
                     correcto=False
                 elif comando[11] in variables1 or comando[11]=="(":
                     correcto=False
-                elif comando[12] in funcion or comando[12]==")":
+                elif comando[12] in dict1.keys() or comando[12]==")":
                     correcto=False
                 elif comando[13] in variables1 or comando[13]=="(":
                     correcto=False
-                elif comando[14] in variables1 or comando[14] in funcion:
+                elif comando[14] in variables1 or comando[14] in dict1.keys():
                     correcto=False
-                elif comando[15] in funcion or comando[15]== "(":
+                elif comando[15] in dict1.keys() or comando[15]== "(":
                     
                     correcto=False
     return correcto
@@ -142,15 +133,17 @@ def If(comando,variables1,funcion):
 
 
 def block(comando1, variables,comandos):
+    dict1 = {"walk":0,"rotate":0,"look":0,"drop":0,"free":0,"pick":0,"grab":0,"walkTo":0,"nop":0,"if":0,"define":0,"block":0}
+    dict1.update(comandos)
     correcto= True
     if comando1[2]=="(" :
-        if comando1[3]==")" or comando1[3] in variables.keys() or comando1[3] not in comandos:
+        if comando1[3]==")" or comando1[3] in variables.keys() or comando1[3] not in dict1:
             correcto= False
     else:
         correcto= False
     for i in comando1:
         posicion=comando1.index(i)
-        if  i in comandos and comando1[posicion+1] ==")" and comando1[posicion+2]=="(" and comando1[posicion+3] ==")" :
+        if  i in dict1 and comando1[posicion+1] ==")" and comando1[posicion+2]=="(" and comando1[posicion+3] ==")" :
             correcto= False
         elif (i in variables.keys()):           
             if comando1[posicion+1] in variables.keys()and comando1[posicion+2]==")" and comando1[posicion+3]=="(" and comando1[posicion+4]==")":
@@ -216,7 +209,7 @@ def nop(comando):
     return correcto
 
 def define(comando, variables, functions):
-    comandos = ["walk","rotate","look","drop","free","pick","grab","walkTo","nop","if","define","block",]
+    comandos = ["walk","rotate","look","drop","free","pick","grab","walkTo","nop","if","define","block"]
     correcto = False
     if (comando[2].isalnum()):
         if (comando[2] not in comandos) and (comando[2] not in variables.keys()) and (comando[2] not in functions.keys()):
@@ -235,10 +228,9 @@ def define(comando, variables, functions):
                     finP = comando.index(")",4)
                     for i in range(4,finP+1):
                         if (not comando[i].isalnum) or (comando[i] in comandos):
-                            print("F")
+                            print("F2")
                             return correcto
                         variables1[comando[i]]=True
-                        print
                     #DividirComandos
                     comandosInDef = []
                     comandoact = []
@@ -262,23 +254,20 @@ def define(comando, variables, functions):
                         else:
                             comandoact.append(comando[finP])
                         finP +=1
-                        #print("dividir comandos",finP, len(comando))
                     #Analizar comandos
                     numCommand = 0
                     functions1 = functions.copy()
                     functions1[comando[2]] = len(variables1)-len(variables)-1
-                    print("len",functions1[comando[2]])
                     correcto = True
                     while (numCommand<len(comandosInDef)) and (correcto == True):
                         comando1 = comandosInDef[numCommand]
-                        print("si se puede")
                         if comando1[1] == "block":
-                            pass
+                            correcto = block(comando1,variables1,functions1)
                         elif comando1[1] == "if":
+                            #correcto = If(comando1,variables1,functions1)
                             pass
                         elif (comando1[1] == "walk") or (comando[1] == "drop") or (comando[1] == "free") or (comando[1] == "pick") or (comando[1] == "grab"):
                             correcto = walkDropFreePickGrab(comando1, variables1)
-                            print(correcto)
                         elif comando1[1] == "rotate":
                             correcto = rotateLook(comando1,variables1,["left","right","back"])
                         elif comando1[1] == "look":
@@ -307,5 +296,22 @@ def funciones(comando, variables, funciones):
         correcto = True
     return correcto
 
-print(analizarArchivo("D:\datos\Jessica\jess\sistemas\lym\Proyecto1\PruebaBien1.txt"))
+#FUNCION PRINCIPAL_________________________________________________________________________________
+def main(filename):
+    """
+    Esta funcion carga archivos .txt y revisa
+    que su contenido sea 
+    """
+    try:
+        if filename.endswith('.txt'):
+            print('Cargando archivo: ' + filename)
+            correcto = analizarArchivo(filename)
+        if correcto:
+            print("YES")
+        else:
+            print("NO")
+    except:
+        print("Hubo un error al cargar el archivo, revise que el archivo cumpla con las condiciones")
+
+main("D:\datos\Jessica\jess\sistemas\lym\Proyecto1\PruebaBien1.txt")#Direccion archivo aqui
 
